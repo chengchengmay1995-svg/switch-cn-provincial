@@ -1,0 +1,7 @@
+LOAD_ZONE,zone_ccs_distance_km,zone_dbid,existing_local_td,local_td_annual_cost_per_mw,existing_tx_sunk_annual_payment,existing_local_td_sunk_annual_payment,zone_balancing_area,local_td_loss_rate
+Sichuan,100.0,6,29093.2835215,60000.0,464700000.0,1549000000.0,Central_China,0.053
+Anhui,100.0,7,21049.584774,60000.0,323400000.0,1078000000.0,East_China,0.053
+Fujian,100.0,8,25838.373397,60000.0,394500000.0,1315000000.0,East_China,0.053
+Jiangsu,100.0,9,73733.332978,60000.0,1159200000.0,3864000000.0,East_China,0.053
+Shanghai,61.50386204,10,24118.8640605,60000.0,388800000.0,1296000000.0,East_China,0.053
+Zhejiang,100.0,11,54382.2871755,60000.0,846300000.0,2821000000.0,East_China,0.053

@@ -1,0 +1,7 @@
+TRANSMISSION_LINE,trans_dbid,trans_lz1,trans_lz2,trans_length_km,trans_efficiency,existing_trans_cap,trans_new_build_allowed
+Fujian-Zhejiang,26,Fujian,Zhejiang,473.207,0.970596,2500,True
+Anhui-Zhejiang,6,Anhui,Zhejiang,327.053,0.979678,2500,True
+Jiangsu-Shanghai,81,Jiangsu,Shanghai,270.654,0.983182,7500,True
+Jiangsu-Zhejiang,82,Jiangsu,Zhejiang,238.01,0.985211,2500,True
+Zhejiang-Shanghai,164,Zhejiang,Shanghai,165.398,0.989723,2500,True
+Anhui-Jiangsu,3,Anhui,Jiangsu,142.72,0.991132,7500,True
