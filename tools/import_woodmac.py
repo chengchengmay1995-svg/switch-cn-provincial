@@ -195,23 +195,39 @@ def build_zone_peak_demand(sheets):
 
 
 def build_fuel_cost(sheets):
+    """fuel_cost.csv = simple-cost mode for Coal + Uranium only.
+       Gas uses the regional_fuel_markets + fuel_supply_curves structure
+       (matches upstream's split). Diesel/FuelOil are not in fuels.csv so
+       they have no consumers and are excluded.
+       Coal prices come from Wood Mac; Uranium copied from upstream + period remap.
+    """
     df_fp = sheets["Fuel prices"]
     rows = []
+
+    # --- Coal: Wood Mac historical + projected ---
     for z in ZONES:
-        for wm_fuel in ["Coal", "Gas", "Diesel", "FuelOil"]:
-            row = _wm_row(df_fp, z, Fuel=wm_fuel)
-            if row.empty:
-                continue
-            v_2020 = float(row[2020].values[0])
-            v_2025 = float(row[2025].values[0]) * CPI_2025_TO_2020_DEFLATOR
-            costs = {2020: v_2020, 2025: v_2025}
-            prev = v_2025
-            g = FUEL_COST_GROWTH.get(wm_fuel, 0.0)
-            for ps in [2030, 2035, 2040, 2045, 2050, 2055, 2060]:
-                prev = prev * (1 + g) ** 5
-                costs[ps] = prev
-            for ps in PERIOD_STARTS:
-                rows.append((z, wm_fuel, ps, costs[ps]))
+        row = _wm_row(df_fp, z, Fuel="Coal")
+        if row.empty:
+            continue
+        v_2020 = float(row[2020].values[0])
+        v_2025 = float(row[2025].values[0]) * CPI_2025_TO_2020_DEFLATOR
+        costs = {2020: v_2020, 2025: v_2025}
+        prev = v_2025
+        g = FUEL_COST_GROWTH["Coal"]
+        for ps in [2030, 2035, 2040, 2045, 2050, 2055, 2060]:
+            prev = prev * (1 + g) ** 5
+            costs[ps] = prev
+        for ps in PERIOD_STARTS:
+            rows.append((z, "Coal", ps, costs[ps]))
+
+    # --- Uranium: from upstream (Wood Mac doesn't price uranium per zone) ---
+    upstream = pd.read_csv(UPSTREAM_INPUTS / "fuel_cost.csv")
+    uranium = upstream[(upstream["fuel"] == "Uranium") &
+                       (upstream["load_zone"].isin(ZONES))].copy()
+    if len(uranium):
+        uranium = _remap_period_column(uranium, "period")
+        rows.extend(uranium[["load_zone", "fuel", "period", "fuel_cost"]].values.tolist())
+
     return pd.DataFrame(rows, columns=["load_zone", "fuel", "period", "fuel_cost"])
 
 
@@ -410,21 +426,35 @@ def build_hydro_timeseries(gen_info_df):
         2050: 2052,
     }
 
+    # Our canonical MM.DD per month (matches CANONICAL_REPDAYS in
+    # tools/rebuild_periods.py); used to remap upstream's per-period
+    # cluster days to our canonical days, by month.
+    CANONICAL_MONTH_DAY = {
+        1: "01.22", 2: "02.08", 3: "03.21", 4: "04.11", 5: "05.22", 6: "06.16",
+        7: "07.22", 8: "08.19", 9: "09.20", 10: "10.26", 11: "11.19", 12: "12.16",
+    }
+
     def remap_ts(old_ts):
         parts = old_ts.split(".")
         if len(parts) != 3:
             return None
         try:
             old_year = int(parts[0])
+            month = int(parts[1])
             new_year = OLD_MID_TO_NEW_MID.get(old_year)
-            if new_year is None:
+            if new_year is None or month not in CANONICAL_MONTH_DAY:
                 return None
-            return f"{new_year}.{parts[1]}.{parts[2]}"
+            return f"{new_year}.{CANONICAL_MONTH_DAY[month]}"
         except ValueError:
             return None
 
     df["timeseries"] = df["timeseries"].map(remap_ts)
     df = df.dropna(subset=["timeseries"])
+    # Aggregate any collisions (shouldn't happen within a period, but guard)
+    df = df.groupby(["hydro_project", "timeseries"], as_index=False).agg({
+        "hydro_min_flow_mw": "mean",
+        "hydro_avg_flow_mw": "mean",
+    })
 
     # Fallback: copy new periods 2020/2055/2060 from nearest
     NEAREST_FALLBACK_NEW_MID = {2022: 2027, 2057: 2052, 2062: 2052}
@@ -457,8 +487,22 @@ def filter_gen_info():
 
 
 def filter_gen_build_predetermined(gen_info_df):
+    """Filter to our projects, then collapse predetermined builds inside
+    period 2020 (2020-2024) to build_year=2020 (the period_start convention).
+    Upstream has some rows at build_year=2023 (upstream's old first
+    period_start) that aren't valid in our 2020-anchored periods.
+    """
     df = pd.read_csv(UPSTREAM_INPUTS / "gen_build_predetermined.csv")
-    return df[df["GENERATION_PROJECT"].isin(gen_info_df["GENERATION_PROJECT"])].copy()
+    df = df[df["GENERATION_PROJECT"].isin(gen_info_df["GENERATION_PROJECT"])].copy()
+    # Collapse any build_year ∈ (2020, 2024] to 2020
+    inside = (df["build_year"] > 2020) & (df["build_year"] <= 2024)
+    df.loc[inside, "build_year"] = 2020
+    # Aggregate duplicates (sum capacity; max can_retire_early flag)
+    df = df.groupby(["GENERATION_PROJECT", "build_year"], as_index=False).agg({
+        "build_gen_predetermined": "sum",
+        "gen_can_retire_early":   "max",
+    })
+    return df
 
 
 def filter_gen_part_load_heat_rates(gen_info_df):
