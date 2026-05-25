@@ -3,7 +3,7 @@
 # Data needed:
 # gen_info.csv table needs gen_water_basin, gen_cooling_water_m3_per_mwh for each plant;
 # water_limit_annual.csv needs WATER_BASINS, PERIOD, water_basin_name_cn, water_basin_limit_mm3
-# Add china_modules.water_limit to the modules.txt file to use this module
+# Add cn_modules.water_limits to the modules.txt file to use this module
 # You can cite below paper to use this module:
 # - Zhang, Chao, Gang He, Josiah Johnston, and Lijin Zhong. 2021. “Long-Term Transition of China’s Power Sector under Carbon Neutrality Target and Water Withdrawal Constraint.” Journal of Cleaner Production 329 (December): 129765. https://doi.org/10.1016/j.jclepro.2021.129765.
 
@@ -92,7 +92,7 @@ def define_components(mod):
 
 def load_inputs(mod, switch_data, inputs_dir):
     """
-    generation_projects_info.csv needs these extra columns:
+    gen_info.csv needs these extra columns:
         gen_water_basin, gen_cooling_water_m3_per_mwh
 
     water_limit_annual.csv
@@ -105,11 +105,7 @@ def load_inputs(mod, switch_data, inputs_dir):
     consistency during model creation.
     """
     switch_data.load_aug(
-<<<<<<< HEAD
-        filename=os.path.join(inputs_dir, "generation_projects_info.csv"),
-=======
         filename=os.path.join(inputs_dir, "gen_info.csv"),
->>>>>>> abab594 (Update for Switch 2.0.8+ and remove gen_min_build_capacity)
         param=(mod.gen_water_basin, mod.gen_cooling_water_m3_per_mwh),
     )
     switch_data.load_aug(
