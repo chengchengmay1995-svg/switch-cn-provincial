@@ -15,3 +15,6 @@ scenarios/*/logs/
 # Top-level logs/ created by ad-hoc `switch solve` runs
 logs/
 # results_archive/ is intentionally NOT ignored — selectively commit summaries there
+
+# Raw provider data (large Excel / proprietary inputs that don't belong on GitHub)
+inputs/raw/
