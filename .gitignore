@@ -8,3 +8,10 @@ Icon?
 
 # MS Office temp files
 ~$*
+
+# Switch run artifacts (per-scenario)
+scenarios/*/outputs/
+scenarios/*/logs/
+# Top-level logs/ created by ad-hoc `switch solve` runs
+logs/
+# results_archive/ is intentionally NOT ignored — selectively commit summaries there
