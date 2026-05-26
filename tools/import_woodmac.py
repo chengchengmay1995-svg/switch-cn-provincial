@@ -949,9 +949,11 @@ IMPORTED_PARTNERS = [
 
 
 def build_imported_power_zones():
+    # NB: 2nd col name MUST match Param name `import_partner_zone` (SWITCH
+    # load_aug auto-binds CSV cols to Params of matching names).
     return pd.DataFrame(
         [(p, dest) for p, dest, *_ in IMPORTED_PARTNERS],
-        columns=["partner_zone", "destination_load_zone"],
+        columns=["partner_zone", "import_partner_zone"],
     )
 
 
