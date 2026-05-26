@@ -5,3 +5,6 @@ Jiangsu-Shanghai,81,Jiangsu,Shanghai,270.654,0.983182,7500,True
 Jiangsu-Zhejiang,82,Jiangsu,Zhejiang,238.01,0.985211,2500,True
 Zhejiang-Shanghai,164,Zhejiang,Shanghai,165.398,0.989723,2500,True
 Anhui-Jiangsu,3,Anhui,Jiangsu,142.72,0.991132,7500,True
+Sichuan-Shanghai-FuFeng,901,Sichuan,Shanghai,1907.0,0.85,6400,FALSE
+Sichuan-Jiangsu-JinSu,902,Sichuan,Jiangsu,2090.0,0.84,7200,FALSE
+Sichuan-Zhejiang-BinJin,903,Sichuan,Zhejiang,1680.0,0.86,8000,FALSE

@@ -22,3 +22,4 @@ switch_model.transmission.transport.build
 switch_model.transmission.transport.dispatch
 switch_model.policies.carbon_policies
 cn_modules.tech_plans
+cn_modules.extensions.imported_power
