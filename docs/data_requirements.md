@@ -22,7 +22,7 @@
 
 | File | Index columns | Field(s) to fill | Source (you fill in) | Filled? |
 |---|---|---|---|---|
-| `inputs/gen_build_costs.csv` | GENERATION_PROJECT, build_year | gen_overnight_cost ($/kW, 2020 USD), gen_fixed_om ($/kW-yr), gen_storage_energy_overnight_cost ($/kWh, storage only) | — | — |
+| `inputs/gen_build_costs.csv` | GENERATION_PROJECT, build_year | gen_overnight_cost ($/MW, 2020 USD), gen_fixed_om ($/MW-yr), gen_storage_energy_overnight_cost ($/MWh, storage only) | — | — |
 | `inputs/fuel_cost.csv` | load_zone, fuel, period | fuel_cost ($/MMBTU, 2020 USD) | — | — |
 | `inputs/fuel_supply_curves.csv` | regional_fuel_market, period, tier | unit_cost ($/MMBTU, 2020 USD), max_avail_at_cost (MMBTU/period) | — | — |
 | `inputs/carbon_policies.csv` | PERIOD | carbon_cap_tco2_per_yr (tCO2/yr), carbon_cost_dollar_per_tco2 ($/tCO2, 2020 USD) | — | — |
