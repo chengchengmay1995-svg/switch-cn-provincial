@@ -11,8 +11,10 @@ Usage:
 """
 
 import argparse
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -21,20 +23,27 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--inputs-dir", required=True)
     ap.add_argument("--switch-bin",
-                    default="/Users/meichengcheng/miniforge3/envs/switch/bin/switch",
-                    help="Path to the switch CLI binary")
+                    default=shutil.which("switch"),
+                    help="Path to the switch CLI binary "
+                         "(default: first `switch` on PATH — activate the conda env first)")
     args = ap.parse_args()
+
+    if not args.switch_bin:
+        sys.exit("FATAL: `switch` not found on PATH. Activate the conda env "
+                 "(`conda activate switch`) or pass --switch-bin explicitly.")
 
     inputs_dir = Path(args.inputs_dir)
     if not inputs_dir.is_dir():
         sys.exit(f"FATAL: {inputs_dir} is not a directory")
+
+    outputs_dir = Path(tempfile.mkdtemp(prefix="switch_validate_"))
 
     # Use --no-save-solution + time_limit=1 so the solver returns ~immediately
     # after construction completes. Construction is what we want to validate.
     cmd = [
         args.switch_bin, "solve",
         "--inputs-dir", str(inputs_dir),
-        "--outputs-dir", "/tmp/switch_validate_outputs",
+        "--outputs-dir", str(outputs_dir),
         "--solver", "appsi_highs",
         "--solver-options-string", "solver=ipm run_crossover=off time_limit=1",
         "--no-save-solution",
@@ -46,10 +55,10 @@ def main():
     result = subprocess.run(cmd, check=False)
     if result.returncode != 0:
         print()
-        print(f"❌ exit code {result.returncode} — construction or solver failed.")
+        print(f"[FAIL] exit code {result.returncode} -- construction or solver failed.")
         sys.exit(result.returncode)
     print()
-    print("✅ Construction succeeded (solver ran briefly under time_limit=1).")
+    print("[OK] Construction succeeded (solver ran briefly under time_limit=1).")
 
 
 if __name__ == "__main__":
